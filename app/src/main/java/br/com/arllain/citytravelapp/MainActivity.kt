@@ -12,10 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.work.*
 import br.com.arllain.citytravelapp.databinding.ActivityMainBinding
-import br.com.arllain.citytravelapp.workers.DownloadJsonFileWorker
-import br.com.arllain.citytravelapp.workers.DownloadZipFileWorker
-import br.com.arllain.citytravelapp.workers.UnzipFileWorker
-import br.com.arllain.citytravelapp.workers.makeStatusNotification
+import br.com.arllain.citytravelapp.workers.*
 import java.io.File
 import java.util.*
 
@@ -70,6 +67,10 @@ class MainActivity : AppCompatActivity() {
         val networkConstraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED).build()
 
+        val cleanupWorkerRequest = OneTimeWorkRequest.Builder(CleanupWorker::class.java)
+            .setConstraints(networkConstraints)
+            .build()
+
         val downloadZipFileWorkerRequest = OneTimeWorkRequest.Builder(DownloadZipFileWorker::class.java)
             .setConstraints(networkConstraints)
             .setInputData(getIdInputData(DownloadZipFileWorker.INPUT_FILE_URL, FILE_URL_DOWNLOAD))
@@ -86,12 +87,29 @@ class MainActivity : AppCompatActivity() {
             .build()
 
         // Add a chained enqueue request
-        workManager.beginWith(downloadZipFileWorkerRequest)
+        workManager.beginWith(cleanupWorkerRequest)
+            .then(downloadZipFileWorkerRequest)
             .then(unzipFileWorkerRequest)
             .then(downloadJsonFileWorkerRequest)
             .enqueue()
 
         // track the progress of the enqueued WorkRequest instances
+        workManager.getWorkInfoByIdLiveData(cleanupWorkerRequest.id)
+            .observe(this, Observer {
+                Log.d("MainActivity","CleanupWorker WorkInfo status: ${it.state}")
+
+                when(it.state == WorkInfo.State.SUCCEEDED){
+                    true -> {
+                        makeStatusNotification("", "CleanUp finished", applicationContext)
+                        showWorkFinished()
+                    }
+                    false -> {
+                        Log.d("MainActivity","CleanupWorker has not finished yet")
+                        showWorkInProgress()
+                    }
+                }
+            })
+
         workManager.getWorkInfoByIdLiveData(downloadZipFileWorkerRequest.id)
             .observe(this, Observer {
                 Log.d("MainActivity","DownloadZipFileWorker WorkInfo status: ${it.state}")
@@ -99,7 +117,7 @@ class MainActivity : AppCompatActivity() {
                 when(it.state == WorkInfo.State.SUCCEEDED){
                     true -> {
                         Log.d("MainActivity","File path: ${it.outputData.getString(DownloadZipFileWorker.OUTPUT_FILE_PATH)}")
-                        makeStatusNotification("", "file downloading finished", applicationContext)
+                        makeStatusNotification("", "Zip File downloading finished", applicationContext)
                         showWorkFinished()
                     }
                     false -> {
@@ -115,7 +133,7 @@ class MainActivity : AppCompatActivity() {
 
                 when(it.state == WorkInfo.State.SUCCEEDED){
                     true -> {
-                        makeStatusNotification("", "unzip file finished", applicationContext)
+                        makeStatusNotification("", "File unzip finished", applicationContext)
                         showWorkFinished()
                     }
                     false -> {
@@ -132,7 +150,7 @@ class MainActivity : AppCompatActivity() {
                 when(it.state == WorkInfo.State.SUCCEEDED){
                     true -> {
                         Log.d("MainActivity","File path: ${it.outputData.getString(DownloadJsonFileWorker.OUTPUT_FILE_PATH)}")
-                        makeStatusNotification("", "file downloading finished", applicationContext)
+                        makeStatusNotification("", "Json File downloading finished", applicationContext)
                         showWorkFinished()
                     }
                     false -> {
