@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -81,10 +82,11 @@ class MainActivity : AppCompatActivity() {
                         Log.d("MainActivity","O Job foi finalizado")
                         Log.d("MainActivity","File path: ${it.outputData.getString(DownLoadFileWorker.OUTPUT_FILE_PATH)}")
                         makeStatusNotification("DownloadWorker", "file downloading fineshed", applicationContext)
+                        showWorkFinished()
                     }
                     false -> {
                         Log.d("MainActivity","O Job ainda não finalizou")
-                        makeStatusNotification("DownloadWorker", "Downloading file", applicationContext)
+                        showWorkInProgress()
                     }
                 }
             })
@@ -117,4 +119,21 @@ class MainActivity : AppCompatActivity() {
             requestPermissionsIfNecessary() // no-op if permissions are granted already.
         }
     }
-}
+
+    /**
+     * Shows and hides views for when the Activity is processing an image
+     */
+    private fun showWorkInProgress() {
+        with(binding) {
+            progressBar.visibility = View.VISIBLE
+        }
+    }
+
+    /**
+     * Shows and hides views for when the Activity is done processing an image
+     */
+    private fun showWorkFinished() {
+        with(binding) {
+            progressBar.visibility = View.GONE
+        }
+    }}
