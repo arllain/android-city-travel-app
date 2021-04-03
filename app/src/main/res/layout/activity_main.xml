@@ -19,4 +19,6 @@
         app:layout_constraintTop_toTopOf="parent"
         />
 
+    <include layout="@layout/content_main" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

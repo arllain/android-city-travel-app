@@ -2,6 +2,7 @@ package br.com.arllain.citytravelapp.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -10,12 +11,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.work.*
 import br.com.arllain.citytravelapp.*
 import br.com.arllain.citytravelapp.R
 import br.com.arllain.citytravelapp.databinding.ActivityMainBinding
 import br.com.arllain.citytravelapp.model.Travel
 import br.com.arllain.citytravelapp.workers.*
+import br.com.arllain.citytravelapp.adapter.PacoteAdapter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
@@ -34,6 +38,11 @@ class MainActivity : AppCompatActivity() {
     private var permissionRequestCount: Int = 0
 
     private lateinit var binding: ActivityMainBinding
+
+    private val pacoteAdapter by lazy {
+        PacoteAdapter (applicationContext)
+    }
+
 
     private val workManager = WorkManager.getInstance(application)
 
@@ -172,6 +181,27 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun setupUi() {
+        val rvPacotes: RecyclerView = findViewById(R.id.rvPacotes)
+        val spacing = resources.getDimensionPixelSize(R.dimen.grid_space)
+        rvPacotes.apply {
+            adapter = pacoteAdapter
+            setHasFixedSize(true)
+            setPadding(spacing, spacing, spacing, spacing)
+            addItemDecoration(object : RecyclerView.ItemDecoration() {
+                override fun getItemOffsets(rect: Rect,
+                                            view: View,
+                                            parent: RecyclerView,
+                                            state: RecyclerView.State) {
+                    rect.set(spacing, spacing, spacing, spacing)
+                }
+            })
+            layoutManager = GridLayoutManager(this.context, 1)
+        }
+
+        loadPacotes()
+    }
+
+    private fun loadPacotes() {
         val outputDirectory = File(applicationContext.filesDir, OUTPUT_PATH)
         if (outputDirectory.exists()) {
             val entries = outputDirectory.listFiles()
@@ -185,13 +215,14 @@ class MainActivity : AppCompatActivity() {
                         val gson = Gson()
                         val listPacoteType = object : TypeToken<Travel>() {}.type
                         var travel: Travel = gson.fromJson(jsonFileString, listPacoteType)
-                        travel.pacoteList.forEachIndexed { idx, pacote -> Log.i("Pacotes disponiveis", "> Pacote $idx:\n$pacote") }
+//                        travel.pacoteList.forEachIndexed { idx, pacote -> Log.i("Pacotes disponiveis", "> Pacote $idx:\n$pacote") }
+                        pacoteAdapter.submitList(travel.pacoteList)
                     }
                 }
             }
         }
-    }
 
+    }
 
     private fun checkAllPermissions(): Boolean {
         var hasPermissions = true
