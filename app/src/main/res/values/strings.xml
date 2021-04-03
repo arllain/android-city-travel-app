@@ -1,3 +1,8 @@
 <resources>
-    <string name="app_name">CityTravelApp</string>
+    <string name="app_name">City  Travel App</string>
+
+    <!-- Messages -->
+    <string name="set_permissions_in_settings">Go to Settings -> Apps and Notifications ->
+        City Travel App -> App Permissions and grant access to Storage.</string>
+
 </resources>
