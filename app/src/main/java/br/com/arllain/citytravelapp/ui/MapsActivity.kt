@@ -55,9 +55,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
         // Add a marker in Sydney and move the camera
-        val recife = LatLng(-8.0578, -34.882)
-        mMap.addMarker(MarkerOptions().position(recife).title("Marker in Recife"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(recife))
+        val cityLocation = getCityLocation(pacote?.local)
+        mMap.addMarker(MarkerOptions().position(cityLocation).title("${pacote?.local}"))
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(cityLocation))
+    }
+
+    private fun getCityLocation(local: String?): LatLng {
+        return when (local) {
+            "São Paulo" -> LatLng(-23.5489, -46.6388)
+            "Belo Horizonte" -> LatLng(-19.8157, -43.9542)
+            "Rio de Janeiro" -> LatLng(-22.9035, -43.2096)
+            "Salvador" -> LatLng(-12.9704, -38.5124)
+            "Foz do Iguaçu" -> LatLng(-25.5469, -54.5882)
+            else -> LatLng(-8.0578, -34.882)
+        }
     }
 
     @SuppressLint("MissingPermission")
