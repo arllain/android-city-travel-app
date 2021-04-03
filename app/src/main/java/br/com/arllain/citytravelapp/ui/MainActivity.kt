@@ -1,4 +1,4 @@
-package br.com.arllain.citytravelapp
+package br.com.arllain.citytravelapp.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -11,8 +11,13 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.work.*
+import br.com.arllain.citytravelapp.*
+import br.com.arllain.citytravelapp.R
 import br.com.arllain.citytravelapp.databinding.ActivityMainBinding
+import br.com.arllain.citytravelapp.model.Travel
 import br.com.arllain.citytravelapp.workers.*
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.util.*
 
@@ -152,6 +157,7 @@ class MainActivity : AppCompatActivity() {
                         Log.d("MainActivity","File path: ${it.outputData.getString(DownloadJsonFileWorker.OUTPUT_FILE_PATH)}")
                         makeStatusNotification("", "Json File downloading finished", applicationContext)
                         showWorkFinished()
+                        setupUi()
                     }
                     false -> {
                         Log.d("MainActivity","DownloadJsonFileWorker has not finished yet")
@@ -163,6 +169,28 @@ class MainActivity : AppCompatActivity() {
 
     private fun getIdInputData(idKey: String, idValue: String) =
         Data.Builder().putString(idKey, idValue).build()
+
+
+    private fun setupUi() {
+        val outputDirectory = File(applicationContext.filesDir, OUTPUT_PATH)
+        if (outputDirectory.exists()) {
+            val entries = outputDirectory.listFiles()
+            if (entries != null) {
+                for (entry in entries) {
+                    val name = entry.name
+                    if (name.isNotEmpty() and name.equals("pacotes.json")) {
+                        val jsonFileString = getJsonDataFromFile(entry)
+                        Log.i("jsonFileString", "jsonFileString $jsonFileString")
+
+                        val gson = Gson()
+                        val listPacoteType = object : TypeToken<Travel>() {}.type
+                        var travel: Travel = gson.fromJson(jsonFileString, listPacoteType)
+                        travel.pacoteList.forEachIndexed { idx, pacote -> Log.i("Pacotes disponiveis", "> Pacote $idx:\n$pacote") }
+                    }
+                }
+            }
+        }
+    }
 
 
     private fun checkAllPermissions(): Boolean {
