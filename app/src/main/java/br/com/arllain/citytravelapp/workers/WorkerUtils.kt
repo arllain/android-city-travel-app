@@ -75,9 +75,7 @@ fun downloadFile(applicationContext: Context, url: String?, fileName: String): F
             )
         }
 
-        val fileLength: Int = urlConnection.contentLength
-        val `in`: InputStream = BufferedInputStream(urlConnection.getInputStream())
-
+        val `in`: InputStream = BufferedInputStream(urlConnection.inputStream)
         val fileOutputStream = FileOutputStream(downloadedFile)
         val data = ByteArray(4096)
         var total: Long = 0
@@ -85,10 +83,7 @@ fun downloadFile(applicationContext: Context, url: String?, fileName: String): F
 
         try {
             while (`in`.read(data).also { count = it } != -1) {
-                total += count.toLong()
-                if (fileLength > 0) {
-                    fileOutputStream.write(data, 0, count)
-                }
+                fileOutputStream.write(data, 0, count)
             }
         } catch (e: Exception) {
         }

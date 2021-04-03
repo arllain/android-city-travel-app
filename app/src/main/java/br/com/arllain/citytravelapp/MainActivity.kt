@@ -12,7 +12,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.work.*
 import br.com.arllain.citytravelapp.databinding.ActivityMainBinding
-import br.com.arllain.citytravelapp.workers.DownLoadFileWorker
+import br.com.arllain.citytravelapp.workers.DownloadJsonFileWorker
+import br.com.arllain.citytravelapp.workers.DownloadZipFileWorker
 import br.com.arllain.citytravelapp.workers.UnzipFileWorker
 import br.com.arllain.citytravelapp.workers.makeStatusNotification
 import java.io.File
@@ -69,9 +70,9 @@ class MainActivity : AppCompatActivity() {
         val networkConstraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED).build()
 
-        val downLoadFileWorkerRequest = OneTimeWorkRequest.Builder(DownLoadFileWorker::class.java)
+        val downloadZipFileWorkerRequest = OneTimeWorkRequest.Builder(DownloadZipFileWorker::class.java)
             .setConstraints(networkConstraints)
-            .setInputData(getIdInputData(DownLoadFileWorker.INPUT_DATA_URL, FILE_URL_DOWNLOAD))
+            .setInputData(getIdInputData(DownloadZipFileWorker.INPUT_FILE_URL, FILE_URL_DOWNLOAD))
             .build()
 
         val unzipFileWorkerRequest = OneTimeWorkRequest.Builder(UnzipFileWorker::class.java)
@@ -79,24 +80,30 @@ class MainActivity : AppCompatActivity() {
             .setInputData(getIdInputData(UnzipFileWorker.INPUT_FILE_PATH, File(applicationContext.filesDir, OUTPUT_PATH).absolutePath.toString()))
             .build()
 
+        val downloadJsonFileWorkerRequest = OneTimeWorkRequest.Builder(DownloadJsonFileWorker::class.java)
+            .setConstraints(networkConstraints)
+            .setInputData(getIdInputData(DownloadJsonFileWorker.INPUT_FILE_URL, JSON_URL_DOWNLOAD))
+            .build()
+
         // Add a chained enqueue request
-        workManager.beginWith(downLoadFileWorkerRequest)
+        workManager.beginWith(downloadZipFileWorkerRequest)
             .then(unzipFileWorkerRequest)
+            .then(downloadJsonFileWorkerRequest)
             .enqueue()
 
         // track the progress of the enqueued WorkRequest instances
-        workManager.getWorkInfoByIdLiveData(downLoadFileWorkerRequest.id)
+        workManager.getWorkInfoByIdLiveData(downloadZipFileWorkerRequest.id)
             .observe(this, Observer {
-                Log.d("MainActivity","DownLoadFileWorker WorkInfo status: ${it.state}")
+                Log.d("MainActivity","DownloadZipFileWorker WorkInfo status: ${it.state}")
 
                 when(it.state == WorkInfo.State.SUCCEEDED){
                     true -> {
-                        Log.d("MainActivity","File path: ${it.outputData.getString(DownLoadFileWorker.OUTPUT_FILE_PATH)}")
+                        Log.d("MainActivity","File path: ${it.outputData.getString(DownloadZipFileWorker.OUTPUT_FILE_PATH)}")
                         makeStatusNotification("", "file downloading finished", applicationContext)
                         showWorkFinished()
                     }
                     false -> {
-                        Log.d("MainActivity","DownLoadFileWorker has not finished yet")
+                        Log.d("MainActivity","DownloadZipFileWorker has not finished yet")
                         showWorkInProgress()
                     }
                 }
@@ -113,6 +120,23 @@ class MainActivity : AppCompatActivity() {
                     }
                     false -> {
                         Log.d("MainActivity","DownLoadFileWorker has not finished yet")
+                        showWorkInProgress()
+                    }
+                }
+            })
+
+        workManager.getWorkInfoByIdLiveData(downloadJsonFileWorkerRequest.id)
+            .observe(this, Observer {
+                Log.d("MainActivity","DownloadJsonFileWorker WorkInfo status: ${it.state}")
+
+                when(it.state == WorkInfo.State.SUCCEEDED){
+                    true -> {
+                        Log.d("MainActivity","File path: ${it.outputData.getString(DownloadJsonFileWorker.OUTPUT_FILE_PATH)}")
+                        makeStatusNotification("", "file downloading finished", applicationContext)
+                        showWorkFinished()
+                    }
+                    false -> {
+                        Log.d("MainActivity","DownloadJsonFileWorker has not finished yet")
                         showWorkInProgress()
                     }
                 }

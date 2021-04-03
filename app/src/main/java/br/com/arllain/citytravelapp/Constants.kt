@@ -19,5 +19,4 @@ const val DELAY_TIME_MILLIS: Long = 3000
 
 const val FILE_URL_DOWNLOAD = "https://github.com/haldny/imagens/raw/main/cidades.zip"
 
-const val JSON_URL_DOWNLOAD = "https://github.com/haldny/imagens/blob/main/pacotes.json"
-
+const val JSON_URL_DOWNLOAD = "https://github.com/haldny/imagens/raw/main/pacotes.json"

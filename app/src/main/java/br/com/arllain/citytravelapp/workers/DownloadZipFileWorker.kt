@@ -7,13 +7,13 @@ import androidx.work.Data
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 
-class DownLoadFileWorker(context: Context, workerParameters: WorkerParameters)
+class DownloadZipFileWorker(context: Context, workerParameters: WorkerParameters)
     : Worker(context, workerParameters) {
 
     override fun doWork(): Result {
-        val url = inputData.getString(INPUT_DATA_URL)
+        val url = inputData.getString(DownloadJsonFileWorker.INPUT_FILE_URL)
 
-        makeStatusNotification("", "Downloading file", applicationContext)
+        makeStatusNotification("", "Downloading JSON file", applicationContext)
 
         return try {
             if (!URLUtil.isValidUrl(url)) {
@@ -21,7 +21,7 @@ class DownLoadFileWorker(context: Context, workerParameters: WorkerParameters)
             }
 
             val downloadedFile = downloadFile(applicationContext, url, "cidades.zip")
-            val outputData = Data.Builder().putString(OUTPUT_FILE_PATH, downloadedFile.absolutePath)
+            val outputData = Data.Builder().putString(DownloadJsonFileWorker.OUTPUT_FILE_PATH, downloadedFile.absolutePath)
                 .build()
 
             Result.success(outputData)
@@ -32,7 +32,7 @@ class DownLoadFileWorker(context: Context, workerParameters: WorkerParameters)
     }
 
     companion object {
-        const val INPUT_DATA_URL = "INPUT_FILE_URL"
+        const val INPUT_FILE_URL = "INPUT_FILE_URL"
         const val OUTPUT_FILE_PATH = "OUTPUT_FILE_PATH"
     }
 
