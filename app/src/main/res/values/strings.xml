@@ -5,5 +5,6 @@
     <string name="set_permissions_in_settings">Go to Settings -> Apps and Notifications ->
         City Travel App -> App Permissions and grant access to Storage.</string>
     <string name="cityImage">imagem da cidade</string>
+    <string name="title_activity_maps">Map</string>
 
 </resources>

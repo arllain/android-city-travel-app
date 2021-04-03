@@ -1,6 +1,7 @@
 package br.com.arllain.citytravelapp.ui
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Rect
 import android.os.Bundle
@@ -36,12 +37,21 @@ class MainActivity : AppCompatActivity() {
         Manifest.permission.WRITE_EXTERNAL_STORAGE
     )
 
+    companion object {
+        const val MAIN_ACTIVITY_IMAGE_EXTRA_ID = "pacote"
+        const val MAIN_ACTIVITY_DETAILS_REQUEST_CODE  = 1
+    }
+
     private var permissionRequestCount: Int = 0
 
     private lateinit var binding: ActivityMainBinding
 
     private val pacoteAdapter by lazy {
-        PacoteAdapter (applicationContext)
+        PacoteAdapter(applicationContext) { clickedImage ->
+            val mapsItent = Intent(this@MainActivity, MapsActivity::class.java)
+            mapsItent.putExtra(MAIN_ACTIVITY_IMAGE_EXTRA_ID, clickedImage)
+            startActivity(mapsItent)
+        }
     }
 
 

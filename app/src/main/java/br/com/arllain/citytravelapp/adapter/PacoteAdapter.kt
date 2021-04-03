@@ -12,7 +12,8 @@ import br.com.arllain.citytravelapp.databinding.ItemPacoteBinding
 import br.com.arllain.citytravelapp.model.Pacote
 import java.io.File
 
-class PacoteAdapter(applicationContext: Context) : ListAdapter<Pacote, PacoteAdapter.MyViewHolder>(MyDiff()) {
+class PacoteAdapter(applicationContext: Context,
+        val clickAction: (Pacote) -> Unit) : ListAdapter<Pacote, PacoteAdapter.MyViewHolder>(MyDiff()) {
 
     val imagesDirectory = File(applicationContext.filesDir, OUTPUT_UNZIP_PATH)
 
@@ -28,6 +29,10 @@ class PacoteAdapter(applicationContext: Context) : ListAdapter<Pacote, PacoteAda
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val pacoteToBind = getItem(position)
         holder.bind(pacoteToBind)
+
+        holder.image.setOnClickListener {
+            clickAction(pacoteToBind)
+        }
     }
 
     inner class MyViewHolder(private val binding: ItemPacoteBinding ): RecyclerView.ViewHolder(binding.root){
@@ -39,6 +44,8 @@ class PacoteAdapter(applicationContext: Context) : ListAdapter<Pacote, PacoteAda
                 tvPacotePreco.text = pacote.preco
             }
         }
+
+        val image = binding.ivPacoteImagem
     }
 
     private class MyDiff: DiffUtil.ItemCallback<Pacote>() {
