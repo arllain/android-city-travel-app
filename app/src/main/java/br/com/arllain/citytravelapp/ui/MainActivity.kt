@@ -20,6 +20,7 @@ import br.com.arllain.citytravelapp.databinding.ActivityMainBinding
 import br.com.arllain.citytravelapp.model.Travel
 import br.com.arllain.citytravelapp.workers.*
 import br.com.arllain.citytravelapp.adapter.PacoteAdapter
+import br.com.arllain.citytravelapp.util.getJsonDataFromFile
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
