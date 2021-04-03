@@ -9,16 +9,19 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import br.com.arllain.citytravelapp.*
 import java.io.*
-import java.lang.Exception
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.*
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
+
 
 fun makeStatusNotification(title: String, message: String, context: Context) {
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val channel = NotificationChannel(CHANNEL_ID, NOTIFICATION_CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_HIGH).apply {
+        val channel = NotificationChannel(
+            CHANNEL_ID, NOTIFICATION_CHANNEL_NAME,
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
             description = NOTIFICATION_CHANNEL_DESCRIPTION
         }
 
@@ -65,9 +68,11 @@ fun downloadFile(applicationContext: Context, url: String?, fileName: String): F
         urlConnection.connect()
 
         if (urlConnection.responseCode != HttpURLConnection.HTTP_OK) {
-            makeStatusNotification("Server Error ",
+            makeStatusNotification(
+                "Server Error ",
                 "Server returned HTTP ${urlConnection.responseCode} ${urlConnection.responseMessage}",
-                applicationContext)
+                applicationContext
+            )
         }
 
         val fileLength: Int = urlConnection.contentLength
@@ -92,4 +97,55 @@ fun downloadFile(applicationContext: Context, url: String?, fileName: String): F
     }
 
     return downloadedFile
+}
+
+
+fun unzip(applicationContext: Context, fileZipPath: String) {
+
+    val outputDir = File(applicationContext.filesDir, OUTPUT_UNZIP_PATH)
+    if (!outputDir.exists()) {
+        outputDir.mkdirs()
+    }
+
+    val buffer = ByteArray(1024)
+    val zis = ZipInputStream(FileInputStream(fileZipPath))
+    var zipEntry = zis.nextEntry
+
+    while (zipEntry != null) {
+        val newFile = newFile(outputDir, zipEntry)
+        if (zipEntry.isDirectory) {
+            if (!newFile.isDirectory && !newFile.mkdirs()) {
+                throw IOException("Failed to create directory $newFile")
+            }
+        } else {
+            // fix for Windows-created archives
+            val parent = newFile.parentFile
+            if (!parent.isDirectory && !parent.mkdirs()) {
+                throw IOException("Failed to create directory $parent")
+            }
+
+            // write file content
+            val fos = FileOutputStream(newFile)
+            var len: Int
+            while (zis.read(buffer).also { len = it } > 0) {
+                fos.write(buffer, 0, len)
+            }
+            fos.close()
+        }
+        zipEntry = zis.nextEntry
+    }
+    zis.closeEntry();
+    zis.close();
+}
+
+
+@Throws(IOException::class)
+fun newFile(destinationDir: File, zipEntry: ZipEntry): File {
+    val destFile = File(destinationDir, zipEntry.getName())
+    val destDirPath = destinationDir.canonicalPath
+    val destFilePath = destFile.canonicalPath
+    if (!destFilePath.startsWith(destDirPath + File.separator)) {
+        throw IOException("Entry is outside of the target dir: " + zipEntry.getName())
+    }
+    return destFile
 }

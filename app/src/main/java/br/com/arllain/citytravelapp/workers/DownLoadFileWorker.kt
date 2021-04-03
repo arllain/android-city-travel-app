@@ -13,7 +13,7 @@ class DownLoadFileWorker(context: Context, workerParameters: WorkerParameters)
     override fun doWork(): Result {
         val url = inputData.getString(INPUT_DATA_URL)
 
-        makeStatusNotification("DownLoadFileWorker", "Downloading file", applicationContext)
+        makeStatusNotification("", "Downloading file", applicationContext)
 
         return try {
             if (!URLUtil.isValidUrl(url)) {
@@ -26,14 +26,14 @@ class DownLoadFileWorker(context: Context, workerParameters: WorkerParameters)
 
             Result.success(outputData)
         } catch (throwable: Throwable) {
-            Log.e("DownloadWorker", "Error downloading file ${throwable.message}")
+            Log.e("DownLoadFileWorker", "Error downloading file ${throwable.message}")
             Result.failure()
         }
     }
 
     companion object {
         const val INPUT_DATA_URL = "INPUT_FILE_URL"
-        const val OUTPUT_FILE_PATH = "output_file_path"
+        const val OUTPUT_FILE_PATH = "OUTPUT_FILE_PATH"
     }
 
 }

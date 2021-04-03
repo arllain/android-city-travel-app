@@ -2,19 +2,21 @@ package br.com.arllain.citytravelapp
 
 import android.Manifest
 import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
 import androidx.work.*
 import br.com.arllain.citytravelapp.databinding.ActivityMainBinding
 import br.com.arllain.citytravelapp.workers.DownLoadFileWorker
-import java.util.*
-import androidx.lifecycle.Observer
+import br.com.arllain.citytravelapp.workers.UnzipFileWorker
 import br.com.arllain.citytravelapp.workers.makeStatusNotification
+import java.io.File
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -72,28 +74,49 @@ class MainActivity : AppCompatActivity() {
             .setInputData(getIdInputData(DownLoadFileWorker.INPUT_DATA_URL, FILE_URL_DOWNLOAD))
             .build()
 
+        val unzipFileWorkerRequest = OneTimeWorkRequest.Builder(UnzipFileWorker::class.java)
+            .setConstraints(networkConstraints)
+            .setInputData(getIdInputData(UnzipFileWorker.INPUT_FILE_PATH, File(applicationContext.filesDir, OUTPUT_PATH).absolutePath.toString()))
+            .build()
+
+        // Add a chained enqueue request
+        workManager.beginWith(downLoadFileWorkerRequest)
+            .then(unzipFileWorkerRequest)
+            .enqueue()
+
         // track the progress of the enqueued WorkRequest instances
         workManager.getWorkInfoByIdLiveData(downLoadFileWorkerRequest.id)
             .observe(this, Observer {
-                Log.d("MainActivity","WorkInfo status: ${it.state}")
+                Log.d("MainActivity","DownLoadFileWorker WorkInfo status: ${it.state}")
 
                 when(it.state == WorkInfo.State.SUCCEEDED){
                     true -> {
-                        Log.d("MainActivity","O Job foi finalizado")
                         Log.d("MainActivity","File path: ${it.outputData.getString(DownLoadFileWorker.OUTPUT_FILE_PATH)}")
-                        makeStatusNotification("DownloadWorker", "file downloading fineshed", applicationContext)
+                        makeStatusNotification("", "file downloading finished", applicationContext)
                         showWorkFinished()
                     }
                     false -> {
-                        Log.d("MainActivity","O Job ainda não finalizou")
+                        Log.d("MainActivity","DownLoadFileWorker has not finished yet")
                         showWorkInProgress()
                     }
                 }
             })
 
-        // Add a chained enqueue request
-        workManager.beginWith(downLoadFileWorkerRequest).enqueue()
+        workManager.getWorkInfoByIdLiveData(unzipFileWorkerRequest.id)
+            .observe(this, Observer {
+                Log.d("MainActivity","UnzipFileWorkerRequest WorkInfo status: ${it.state}")
 
+                when(it.state == WorkInfo.State.SUCCEEDED){
+                    true -> {
+                        makeStatusNotification("", "unzip file finished", applicationContext)
+                        showWorkFinished()
+                    }
+                    false -> {
+                        Log.d("MainActivity","DownLoadFileWorker has not finished yet")
+                        showWorkInProgress()
+                    }
+                }
+            })
     }
 
     private fun getIdInputData(idKey: String, idValue: String) =

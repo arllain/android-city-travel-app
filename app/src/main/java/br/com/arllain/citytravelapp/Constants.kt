@@ -13,6 +13,8 @@ const val NOTIFICATION_ID = 1
 
 const val OUTPUT_PATH = "downloads"
 
+const val OUTPUT_UNZIP_PATH = "downloads/cidades/"
+
 const val DELAY_TIME_MILLIS: Long = 3000
 
 const val FILE_URL_DOWNLOAD = "https://github.com/haldny/imagens/raw/main/cidades.zip"
