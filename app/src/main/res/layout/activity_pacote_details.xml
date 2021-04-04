@@ -1,0 +1,73 @@
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp"
+    android:clickable="true"
+    android:foreground="?selectableItemBackground"
+    app:cardElevation="3dp"
+    app:contentPadding="4dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/relativeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+
+        <ImageView
+            android:id="@+id/iv_pacote_imagem"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:contentDescription="@string/cityImage"
+            android:scaleType="centerCrop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/item_pacote_divisor"
+            android:layout_width="0dp"
+            android:layout_height="3dp"
+            android:background="@android:color/holo_orange_dark"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_pacote_imagem" />
+
+        <TextView
+            android:id="@+id/tv_pacote_dias"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/item_pacote_divisor" />
+
+        <TextView
+            android:id="@+id/tv_pacote_preco"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_green_dark"
+            android:textSize="20sp"
+            app:layout_constraintStart_toStartOf="@id/tv_pacote_dias"
+            app:layout_constraintTop_toBottomOf="@id/tv_pacote_dias" />
+
+        <Button
+            android:id="@+id/btMaps"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/veja_mapa"
+            android:layout_marginTop="24dp"
+            app:layout_constraintEnd_toEndOf="@+id/iv_pacote_imagem"
+            app:layout_constraintStart_toStartOf="@+id/iv_pacote_imagem"
+            app:layout_constraintTop_toBottomOf="@+id/tv_pacote_preco" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>
