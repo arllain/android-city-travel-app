@@ -29,8 +29,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-        pacote = intent.getParcelableExtra<Pacote>(MainActivity.MAIN_ACTIVITY_IMAGE_EXTRA_ID)
-
+        pacote = intent.getParcelableExtra<Pacote>(PacoteDetailsActivity.PACOTE_DETAILS_ACTIVITY_EXTRA_ID)
     }
 
     /**

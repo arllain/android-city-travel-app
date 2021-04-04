@@ -17,11 +17,11 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.work.*
 import br.com.arllain.citytravelapp.*
 import br.com.arllain.citytravelapp.R
+import br.com.arllain.citytravelapp.adapter.PacoteAdapter
 import br.com.arllain.citytravelapp.databinding.ActivityMainBinding
 import br.com.arllain.citytravelapp.model.Travel
-import br.com.arllain.citytravelapp.workers.*
-import br.com.arllain.citytravelapp.adapter.PacoteAdapter
 import br.com.arllain.citytravelapp.util.getJsonDataFromFile
+import br.com.arllain.citytravelapp.workers.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
@@ -38,8 +38,7 @@ class MainActivity : AppCompatActivity() {
     )
 
     companion object {
-        const val MAIN_ACTIVITY_IMAGE_EXTRA_ID = "pacote"
-        const val MAIN_ACTIVITY_DETAILS_REQUEST_CODE  = 1
+        const val MAIN_ACTIVITY_PACOTE_EXTRA_ID = "pacote"
     }
 
     private var permissionRequestCount: Int = 0
@@ -47,10 +46,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private val pacoteAdapter by lazy {
-        PacoteAdapter(applicationContext) { clickedImage ->
-            val mapsItent = Intent(this@MainActivity, MapsActivity::class.java)
-            mapsItent.putExtra(MAIN_ACTIVITY_IMAGE_EXTRA_ID, clickedImage)
-            startActivity(mapsItent)
+        PacoteAdapter(applicationContext) { clickedPacote ->
+            val pacoteItent = Intent(this@MainActivity, PacoteDetailsActivity::class.java)
+            pacoteItent.putExtra(MAIN_ACTIVITY_PACOTE_EXTRA_ID, clickedPacote)
+            startActivity(pacoteItent)
         }
     }
 
@@ -61,7 +60,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         requestPermissionsIfNecessary()
     }
 

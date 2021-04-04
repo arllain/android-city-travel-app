@@ -6,5 +6,6 @@
         City Travel App -> App Permissions and grant access to Storage.</string>
     <string name="cityImage">imagem da cidade</string>
     <string name="title_activity_maps">Map</string>
+    <string name="veja_mapa">Veja Mapa</string>
 
 </resources>
