@@ -30,7 +30,7 @@ class PacoteAdapter(applicationContext: Context,
         val pacoteToBind = getItem(position)
         holder.bind(pacoteToBind)
 
-        holder.image.setOnClickListener {
+        holder.card.setOnClickListener {
             clickAction(pacoteToBind)
         }
     }
@@ -45,7 +45,8 @@ class PacoteAdapter(applicationContext: Context,
             }
         }
 
-        val image = binding.ivPacoteImagem
+
+        val card = binding.cardView
     }
 
     private class MyDiff: DiffUtil.ItemCallback<Pacote>() {
